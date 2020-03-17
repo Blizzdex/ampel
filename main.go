@@ -5,12 +5,18 @@ import (
 	"net/http"
 )
 
+//Variable for the current ampel colour
 var Ampelfarbe []byte = []byte("Green")
 
+//Handler, just giving back the current colour of the ampel
 func getcol(w http.ResponseWriter, r *http.Request) {
 	w.Write(Ampelfarbe)
 	return
 }
+
+/*Handler to set the ampelcolor, on a get request, a form is printed and when the form is submited
+this creates a post reqest also handled by that handler which changes the Ampelfarbe var.
+*/
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	//Handle a post request to set the color
@@ -28,6 +34,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Main function, the webpage responds on /set and /colour get request and on /set post requests.
 func main() {
 	http.HandleFunc("/set", ping)
 	http.HandleFunc("/colour", getcol)
