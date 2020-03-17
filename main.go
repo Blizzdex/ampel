@@ -21,8 +21,9 @@ func ping(w http.ResponseWriter, r *http.Request) {
 		w.Write(Ampelfarbe)
 		return
 	}
+
 	//If it is a get request on the /set, we return the form to fill out.
-	http.ServeFile(w, r, "setform.html")
+	http.ServeFile(w, r, "src/setform.html")
 	return
 
 }
