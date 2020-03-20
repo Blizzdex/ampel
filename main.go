@@ -3,14 +3,27 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+
+	//"bufio"
+	"fmt"
+	//"io"
+	"io/ioutil"
+	//"os"
 )
 
 //Variable for the current ampel colour
-var Ampelfarbe []byte = []byte("Green")
 
 //Handler, just giving back the current colour of the ampel
 func getcol(w http.ResponseWriter, r *http.Request) {
-	w.Write(Ampelfarbe)
+	dat, err := ioutil.ReadFile("src/Ampelcolour.txt")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Print(string(dat) + "/n")
+
+	http.ServeFile(w, r, "src/"+string(dat)+".html")
+
 	return
 }
 
@@ -22,8 +35,16 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	//Handle a post request to set the color
 	if r.Method == "POST" {
 		col := r.FormValue("col")
-		Ampelfarbe = []byte(col)
+		//write the new ampel colour to the file
+		file, err := os.Create("src/Ampelcolour.txt")
 
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+		var Ampelfarbe = []byte(col)
+
+		file.Write(Ampelfarbe)
 		w.Write(Ampelfarbe)
 		return
 	}
@@ -37,7 +58,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 //Main function, the webpage responds on /set and /colour get request and on /set post requests.
 func main() {
 	http.HandleFunc("/set", ping)
-	http.HandleFunc("/colour", getcol)
+	http.HandleFunc("/", getcol)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }

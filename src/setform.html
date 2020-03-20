@@ -11,9 +11,12 @@
 <body>
     <h1>Set the Ampel colour here</h1>
     <form method="post" action="/set">
-        <div>
-            <label>Input the new colour</label><input name="col" type="text" value="">
-        </div>
+            <input id="green" type="radio" name="col" value=green>
+            <label for="green">Green</label>
+            <input id="yellow" type="radio" name="col" value="yellow">
+            <label for="yellow">Yellow</label>
+            <input id="red" type="radio" name="col" value="red">
+            <label for="red">Red</label>
         <button>Send</button>
     </form>
 </body>

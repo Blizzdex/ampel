@@ -1,5 +1,7 @@
 #Stage 0 used to compile the go code
-FROM golang:1.14
+ARG goversion=1.14
+
+FROM golang:${goversion}
 WORKDIR Ampel
 COPY go.* .
 RUN go mod download
