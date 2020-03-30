@@ -1,0 +1,6 @@
+---
+programs:
+  - name: ampel2
+    path: /app/ampel2
+    capabilities:
+      - CAP_NET_BIND_SERVICE

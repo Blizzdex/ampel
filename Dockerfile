@@ -2,7 +2,7 @@
 ARG goversion=1.14
 
 FROM golang:${goversion}
-WORKDIR Ampel
+WORKDIR ampel2
 COPY go.* ./
 RUN go mod download
 COPY *.go .
@@ -10,6 +10,6 @@ RUN CGO_ENABLED=0 go build
 
 # Stage 1 is based on the vis base image.
 FROM eu.gcr.io/vseth-public/base:delta
-COPY --from=0 /go/Ampel/ampel2 .
+COPY --from=0 /go/ampel2/ampel2 .
 COPY src src
-EXPOSE 8080
+COPY cinit.yml /etc/cinit.d/ampel2.yml

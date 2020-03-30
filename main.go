@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"database/sql"
 	"fmt"
@@ -108,9 +107,10 @@ func main() {
 	connectDB()
 
 	//handle the requests
+	fmt.Println("Listening")
 	http.HandleFunc("/set", setcol)
 	http.HandleFunc("/", getcol)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 
 }
 
