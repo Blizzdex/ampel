@@ -1,0 +1,24 @@
+syntax = "proto3";
+package grpc;
+
+enum ampelColour {
+  green=0;
+  yellow=1;
+  red=2;
+}
+
+
+message colour {
+  ampelColour colour=1;
+}
+
+message ack {
+  bool success=1;
+}
+
+message null {}
+
+service ampel2 {
+  rpc setColour(colour) returns (ack);
+  rpc getColour(null) returns (colour);
+}

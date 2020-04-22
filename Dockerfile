@@ -5,7 +5,8 @@ FROM golang:${goversion}
 WORKDIR ampel2
 COPY go.* ./
 RUN go mod download
-COPY *.go .
+COPY *.go ./
+COPY grpc grpc
 RUN CGO_ENABLED=0 go build
 
 # Stage 1 is based on the vis base image.
