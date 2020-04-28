@@ -4,8 +4,12 @@
 package grpc
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -182,4 +186,120 @@ var fileDescriptor_ccbe285bdc797369 = []byte{
 	0xd9, 0x0d, 0x88, 0x55, 0xc4, 0x3d, 0x50, 0xcd, 0xbb, 0x11, 0x0b, 0xac, 0x89, 0x2d, 0x8f, 0xe9,
 	0xe8, 0xc5, 0x6a, 0x3c, 0x00, 0xad, 0xbe, 0x29, 0xb0, 0xf3, 0xa1, 0x37, 0xfe, 0x23, 0xee, 0xc4,
 	0x1c, 0x9c, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x24, 0x23, 0x37, 0xd4, 0x00, 0x01, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// Ampel2Client is the client API for Ampel2 service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type Ampel2Client interface {
+	SetColour(ctx context.Context, in *Colour, opts ...grpc.CallOption) (*Ack, error)
+	GetColour(ctx context.Context, in *Null, opts ...grpc.CallOption) (*Colour, error)
+}
+
+type ampel2Client struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAmpel2Client(cc grpc.ClientConnInterface) Ampel2Client {
+	return &ampel2Client{cc}
+}
+
+func (c *ampel2Client) SetColour(ctx context.Context, in *Colour, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := c.cc.Invoke(ctx, "/grpc.ampel2/setColour", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ampel2Client) GetColour(ctx context.Context, in *Null, opts ...grpc.CallOption) (*Colour, error) {
+	out := new(Colour)
+	err := c.cc.Invoke(ctx, "/grpc.ampel2/getColour", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Ampel2Server is the server API for Ampel2 service.
+type Ampel2Server interface {
+	SetColour(context.Context, *Colour) (*Ack, error)
+	GetColour(context.Context, *Null) (*Colour, error)
+}
+
+// UnimplementedAmpel2Server can be embedded to have forward compatible implementations.
+type UnimplementedAmpel2Server struct {
+}
+
+func (*UnimplementedAmpel2Server) SetColour(ctx context.Context, req *Colour) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetColour not implemented")
+}
+func (*UnimplementedAmpel2Server) GetColour(ctx context.Context, req *Null) (*Colour, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetColour not implemented")
+}
+
+func RegisterAmpel2Server(s *grpc.Server, srv Ampel2Server) {
+	s.RegisterService(&_Ampel2_serviceDesc, srv)
+}
+
+func _Ampel2_SetColour_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Colour)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(Ampel2Server).SetColour(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.ampel2/SetColour",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(Ampel2Server).SetColour(ctx, req.(*Colour))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ampel2_GetColour_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Null)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(Ampel2Server).GetColour(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.ampel2/GetColour",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(Ampel2Server).GetColour(ctx, req.(*Null))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Ampel2_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.ampel2",
+	HandlerType: (*Ampel2Server)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "setColour",
+			Handler:    _Ampel2_SetColour_Handler,
+		},
+		{
+			MethodName: "getColour",
+			Handler:    _Ampel2_GetColour_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "ampel2.proto",
 }
