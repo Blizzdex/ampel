@@ -8,9 +8,9 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/lib/pq"
+	log "github.com/sirupsen/logrus"
 	pb "gitlab.ch/ampel2/grpc"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 	"net/http"
 )
@@ -47,12 +47,12 @@ func main() {
 	var serv = ampel2Server{}
 	pb.RegisterAmpel2Server(grpcServer, &serv)
 	go func() {
-		fmt.Println("grpc up")
+		log.Println("grpc up")
 		grpcServer.Serve(lis)
 	}()
 
 	//handle http requests
-	fmt.Println("Listening")
+	log.Println("Listening")
 	http.HandleFunc("/set", setcol)
 	http.HandleFunc("/", getcol)
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -76,7 +76,7 @@ func connectDB() {
 		panic(err)
 	}
 
-	fmt.Println("Connection to db successful")
+	log.Println("Connection to db successful")
 }
 
 func (*ampel2Server) GetColour(ctx context.Context, req *pb.Null) (*pb.Colour, error) {
@@ -94,6 +94,7 @@ func (*ampel2Server) GetColour(ctx context.Context, req *pb.Null) (*pb.Colour, e
 	case "red":
 		farbe = 2
 	default:
+		log.Warn("Failed to get colour")
 		return nil, err
 	}
 	return &pb.Colour{Colour: farbe}, nil
@@ -111,6 +112,7 @@ func (*ampel2Server) SetColour(ctx context.Context, req *pb.Colour) (*pb.Ack, er
 	_, err := db.Exec(sqlStatement, str)
 	if err != nil {
 		ack.Success = false
+		log.Warn("Failed to set colour")
 		connectDB()
 	}
 	return &ack, nil

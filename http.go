@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	log "github.com/sirupsen/logrus"
+	"net/http"
+)
 
 //enum for the ampelcolours with methods to use it.
 type col_t string
@@ -39,7 +42,8 @@ func getcol(w http.ResponseWriter, r *http.Request) {
 	_ = db.QueryRow(sqlStatement).Scan(&res)
 	var col = toCol(res)
 	if col == invalidFormat {
-		w.Write([]byte("Current ampel colour invalid, could not display."))
+		w.Write([]byte("Could not display."))
+		log.Warn("Failed to get valid AmpelColour")
 		return
 	}
 	//and print the colour to the website.
@@ -65,12 +69,14 @@ func setcol(w http.ResponseWriter, r *http.Request) {
 			WHERE id=1`
 		_, err := db.Exec(sqlStatement, col)
 		if err != nil {
+			w.Write([]byte("Could not change Ampelcolour. Retry to set colour!"))
+			log.Warn("Could not change Ampelcolour, connection to DB failed. Retrying to connect to DB!")
 			connectDB()
-			w.Write([]byte("Could not change Ampelcolour, connection to DB failed. Retry to set colour!"))
 			return
 		}
 		//Write out the new colour to the webpage
-		w.Write([]byte(col))
+
+		getcol(w, r)
 		return
 	}
 
