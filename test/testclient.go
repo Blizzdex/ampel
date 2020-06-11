@@ -4,15 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	pb "gitlab.ch/ampel2/grpc"
+	"github.com/golang/protobuf/ptypes/empty"
+	pb "gitlab.ch/ampel2/ampel"
 	"google.golang.org/grpc"
 	"log"
 	"time"
 )
 
-var serverAddr = flag.String("server_addr", "localhost:8083", "addr of grpc server")
+var serverAddr = flag.String("server_addr", "localhost:8083", "addr of ampel server")
 
-//set up grpc client to interact with the server.
+//set up ampel client to interact with the server.
 func main() {
 	flag.Parse()
 	conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
@@ -24,11 +25,10 @@ func main() {
 	//request the colour now.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	var null = pb.Null{}
-	colour, err := client.GetColour(ctx, &null)
-	var col = colour.Colour
-	var m = pb.AmpelColour_name
-	var c = m[int32(col)]
+	var null = empty.Empty{}
+	colour, err := client.GetColor(ctx, &null)
+	var col = colour.Color
+	var c = pb.Color_name[int32(col)]
 	if err != nil {
 		log.Fatalf("%v.GetFeatures(_) = _, %v: ", client, err)
 	}

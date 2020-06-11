@@ -1,72 +1,87 @@
 package main
 
-//!!PORT NUMBERS are wrong for testing.
-
 import (
 	"context"
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/empty"
 	_ "github.com/lib/pq"
+	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
-	pb "gitlab.ch/ampel2/grpc"
+	pb "gitlab.ch/ampel2/ampel"
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
+	"strings"
 )
 
-//set up the grpc server variables
-var portgrpc = flag.Int("port", 8083, "Port for grpc requests")
+//set up the ampel server variables
+var (
+	portgrpc    = flag.Int("port", 8083, "Port for ampel requests")
+	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
+	db          *sql.DB //pointer to the postgresdb
+	setup       bool    = false
+	l           *log.Logger
+)
 
 type ampel2Server struct {
 	pb.UnimplementedAmpel2Server
 }
 
-//pointer to the postgresdb running in the background
-var db *sql.DB
-
-//information about the postgresql db running in the background.
-const (
-	host     = "192.168.1.21"
-	port     = 5432
-	user     = "postgres"
-	password = "wallah123"
-	dbname   = "ampeldb"
-)
+func checkArgs() {
+	flag.Parse()
+	for k, v := range map[string]string{"postgres-url": *postgresURL} {
+		if strings.HasPrefix("{{", v) {
+			l.Fatalf("missing required argument %v:\n", k)
+		}
+	}
+}
 
 //Main function, the webpage responds on /set and / get request and on /set post requests.
 func main() {
+	checkArgs()
+
+	//Set up the logger
+	l = log.New()
+	l.SetReportCaller(true)
+	l.SetFormatter(&log.JSONFormatter{})
 	//connect to the postgres DB
 	connectDB()
-	//set up the grpc server
+	//apply the migrations
+	var migrations = migrate.FileMigrationSource{Dir: "migrations"}
+	migCount, err2 := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err2 != nil {
+		l.Fatalf("failed to migrate: %v\n", err2)
+	}
+	l.Println("applied %v migrations\n", migCount)
+
+	//set up the ampel server
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *portgrpc))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		l.Fatalf("failed to listen: %v", err)
 	}
 	var grpcServer = grpc.NewServer()
 	var serv = ampel2Server{}
 	pb.RegisterAmpel2Server(grpcServer, &serv)
 	go func() {
-		log.Println("grpc up")
+		l.Info("ampel up")
 		grpcServer.Serve(lis)
 	}()
 
 	//handle http requests
-	log.Println("Listening")
+	l.Println("Listening")
 	http.HandleFunc("/set", setcol)
 	http.HandleFunc("/", getcol)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	l.Fatal(http.ListenAndServe(":80", nil))
 
 }
 
 //func to connect to the Database if connection fails, the program will panic
 func connectDB() {
 	//set up postgresql db.
-	//create connection string
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	//set up connection and save the db in global variable
 	var err error
-	db, err = sql.Open("postgres", psqlInfo)
+	db, err = sql.Open("postgres", fmt.Sprintf("postgres://%v", *postgresURL))
 	if err != nil {
 		panic(err)
 	}
@@ -76,43 +91,30 @@ func connectDB() {
 		panic(err)
 	}
 
-	log.Println("Connection to db successful")
+	l.Println("Connection to db successful")
 }
 
-func (*ampel2Server) GetColour(ctx context.Context, req *pb.Null) (*pb.Colour, error) {
+func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.Col, error) {
 	//Create the right colour elem.
-	sqlStatement := `SELECT colour FROM colour`
-	var res string
-	_ = db.QueryRow(sqlStatement).Scan(&res)
-	var farbe pb.AmpelColour
-	var err error
-	switch res {
-	case "green":
-		farbe = 0
-	case "yellow":
-		farbe = 1
-	case "red":
-		farbe = 2
-	default:
-		log.Warn("Failed to get colour")
-		return nil, err
-	}
-	return &pb.Colour{Colour: farbe}, nil
+	sqlStatement := `SELECT color FROM color`
+	var farbe int
+	_ = db.QueryRow(sqlStatement).Scan(&farbe)
+
+	return &pb.Col{Color: pb.Color(farbe)}, nil
 }
 
-func (*ampel2Server) SetColour(ctx context.Context, req *pb.Colour) (*pb.Ack, error) {
-	var col = req.Colour
-	var str = col.String()
+func (*ampel2Server) SetColor(ctx context.Context, req *pb.Col) (*pb.Ack, error) {
+	var col = req.Color
 	var ack pb.Ack
 	ack.Success = true
 	sqlStatement := `
-			UPDATE colour
-			SET colour = $1
+			UPDATE color
+			SET color = $1
 			WHERE id=1`
-	_, err := db.Exec(sqlStatement, str)
+	_, err := db.Exec(sqlStatement, col)
 	if err != nil {
 		ack.Success = false
-		log.Warn("Failed to set colour")
+		l.Warn("Failed to set colour")
 		connectDB()
 	}
 	return &ack, nil

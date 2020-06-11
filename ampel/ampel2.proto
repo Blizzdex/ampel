@@ -1,0 +1,24 @@
+syntax = "proto3";
+package ampel;
+
+import "google/protobuf/empty.proto";
+
+enum color {
+  GREEN=0;
+  YELLOW=1;
+  RED=2;
+}
+
+
+message col {
+  color color=1;
+}
+
+message ack {
+  bool success=1;
+}
+
+service ampel2 {
+  rpc setColor(col) returns (ack);
+  rpc getColor(google.protobuf.Empty) returns (col);
+}

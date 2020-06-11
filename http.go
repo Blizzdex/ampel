@@ -6,48 +6,39 @@ import (
 )
 
 //enum for the ampelcolours with methods to use it.
-type col_t string
+type color int32 //why would I need a col_t type?
 
 const (
-	green         col_t = "green"
-	yellow        col_t = "yellow"
-	red           col_t = "red"
-	invalidFormat col_t = "iv"
+	GREEN  color = 1
+	YELLOW color = 2
+	RED    color = 3
 )
 
-func (c col_t) file() string {
-	return string("src/" + c + ".html")
+var color_name = map[color]string{
+	0: "invalidFormat",
+	1: "green",
+	2: "yellow",
+	3: "red",
 }
 
-func toCol(s string) col_t {
-	var c col_t
-	switch s {
-	case "green":
-		return green
-	case "yellow":
-		return yellow
-	case "red":
-		return red
-	default:
-		return invalidFormat
-	}
-	return c
+func (c color) file() string {
+	return string("src/" + color_name[c] + ".html")
 }
 
 //Handler, just giving back the current colour of the ampel
 func getcol(w http.ResponseWriter, r *http.Request) {
 	//read out the colour from the db
-	sqlStatement := `SELECT colour FROM colour`
-	var res string
+	sqlStatement := `SELECT color FROM color`
+	var res color
 	_ = db.QueryRow(sqlStatement).Scan(&res)
-	var col = toCol(res)
-	if col == invalidFormat {
+	var col = color_name[res]
+	if col == "invalidFormat" {
 		w.Write([]byte("Could not display."))
-		log.Warn("Failed to get valid AmpelColour")
+		log.Warn("Failed to get valid AmpelColor.")
 		return
 	}
 	//and print the colour to the website.
-	http.ServeFile(w, r, col.file())
+	http.ServeFile(w, r, res.file())
 
 	return
 }
@@ -64,14 +55,14 @@ func setcol(w http.ResponseWriter, r *http.Request) {
 		}
 		//Write the new colour into the db
 		sqlStatement := `
-			UPDATE colour
-			SET colour = $1
+			UPDATE color
+			SET color = $1
 			WHERE id=1`
 		_, err := db.Exec(sqlStatement, col)
 		if err != nil {
 			w.Write([]byte("Could not change Ampelcolour. Retry to set colour!"))
 			log.Warn("Could not change Ampelcolour, connection to DB failed. Retrying to connect to DB!")
-			connectDB()
+			connectDB() //can cause program to panic if the connection fails.
 			return
 		}
 		//Write out the new colour to the webpage
