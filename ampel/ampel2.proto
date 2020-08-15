@@ -4,9 +4,10 @@ package ampel;
 import "google/protobuf/empty.proto";
 
 enum color {
-  GREEN=0;
-  YELLOW=1;
-  RED=2;
+  INV=0;
+  GREEN=1;
+  YELLOW=2;
+  RED=3;
 }
 
 

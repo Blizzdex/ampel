@@ -18,7 +18,7 @@ import (
 
 //set up the ampel server variables
 var (
-	portgrpc    = flag.Int("port", 8083, "Port for ampel requests")
+	portgrpc    = flag.Int("port", 8083, "Port for grpc ampel requests")
 	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
 	db          *sql.DB //pointer to the postgresdb
 	setup       bool    = false
@@ -44,7 +44,7 @@ func main() {
 
 	//Set up the logger
 	l = log.New()
-	l.SetReportCaller(true)
+	l.SetReportCaller(false)
 	l.SetFormatter(&log.JSONFormatter{})
 	//connect to the postgres DB
 	connectDB()
@@ -54,7 +54,7 @@ func main() {
 	if err2 != nil {
 		l.Fatalf("failed to migrate: %v\n", err2)
 	}
-	l.Println("applied %v migrations\n", migCount)
+	l.Printf("applied %v migrations\n", migCount)
 
 	//set up the ampel server
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *portgrpc))
@@ -81,6 +81,7 @@ func main() {
 func connectDB() {
 	//set up postgresql db.
 	var err error
+
 	db, err = sql.Open("postgres", fmt.Sprintf("postgres://%v", *postgresURL))
 	if err != nil {
 		panic(err)
@@ -94,6 +95,7 @@ func connectDB() {
 	l.Println("Connection to db successful")
 }
 
+//The handlers for grpc requests.
 func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.Col, error) {
 	//Create the right colour elem.
 	sqlStatement := `SELECT color FROM color`

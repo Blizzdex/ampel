@@ -2,6 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
+	"html/template"
 	"net/http"
 )
 
@@ -13,6 +14,10 @@ const (
 	YELLOW color = 2
 	RED    color = 3
 )
+
+type col4Temp struct {
+	Col string
+}
 
 var color_name = map[color]string{
 	0: "invalidFormat",
@@ -38,8 +43,12 @@ func getcol(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//and print the colour to the website.
-	http.ServeFile(w, r, res.file())
-
+	var p = col4Temp{Col: color_name[res]}
+	var t, e = template.ParseFiles("src/colTemplate.html")
+	if e != nil {
+		l.Fatalf("Failed to parse Template")
+	}
+	t.Execute(w, p)
 	return
 }
 
