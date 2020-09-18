@@ -145,7 +145,7 @@ func init() {
 }
 
 var fileDescriptor_ccbe285bdc797369 = []byte{
-	// 213 bytes of a gzipped FileDescriptorProto
+	// 218 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x49, 0xcc, 0x2d, 0x48,
 	0xcd, 0x31, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0xf3, 0xa4, 0xa4, 0xd3, 0xf3,
 	0xf3, 0xd3, 0x73, 0x52, 0xf5, 0xc1, 0x82, 0x49, 0xa5, 0x69, 0xfa, 0xa9, 0xb9, 0x05, 0x25, 0x95,
@@ -155,11 +155,11 @@ var fileDescriptor_ccbe285bdc797369 = []byte{
 	0x72, 0x72, 0x6a, 0x71, 0x31, 0x58, 0x31, 0x47, 0x10, 0x8c, 0xab, 0x65, 0x00, 0x35, 0x44, 0x88,
 	0x9d, 0x8b, 0xd9, 0xd3, 0x2f, 0x4c, 0x80, 0x41, 0x88, 0x93, 0x8b, 0xd5, 0x3d, 0xc8, 0xd5, 0xd5,
 	0x4f, 0x80, 0x51, 0x88, 0x8b, 0x8b, 0x2d, 0xd2, 0xd5, 0xc7, 0xc7, 0x3f, 0x5c, 0x80, 0x09, 0x24,
-	0x1f, 0xe4, 0xea, 0x22, 0xc0, 0x6c, 0x14, 0xc3, 0xc5, 0x06, 0x71, 0xb1, 0x90, 0x12, 0x17, 0x47,
-	0x71, 0x6a, 0x89, 0x33, 0x58, 0x3b, 0x17, 0xc2, 0x76, 0x29, 0x18, 0x1b, 0x64, 0xb3, 0x1e, 0x17,
-	0x47, 0x3a, 0x4c, 0x8d, 0x98, 0x1e, 0xc4, 0x57, 0x7a, 0x30, 0x5f, 0xe9, 0xb9, 0x82, 0x7c, 0x25,
-	0x85, 0xa4, 0x37, 0x89, 0x0d, 0x2c, 0x67, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x11, 0xe6, 0xf6,
-	0x22, 0x16, 0x01, 0x00, 0x00,
+	0x1f, 0xe4, 0xea, 0x22, 0xc0, 0x6c, 0x14, 0xcf, 0xc5, 0x06, 0x71, 0xb1, 0x90, 0x2a, 0x17, 0x77,
+	0x68, 0x41, 0x4a, 0x62, 0x49, 0xaa, 0x33, 0xd8, 0x04, 0x2e, 0x84, 0x03, 0xa4, 0x60, 0x6c, 0x90,
+	0xe5, 0x7a, 0x5c, 0x1c, 0xee, 0xa9, 0x25, 0x10, 0x35, 0x62, 0x7a, 0x10, 0x8f, 0xe9, 0xc1, 0x3c,
+	0xa6, 0xe7, 0x0a, 0xf2, 0x98, 0x14, 0x92, 0xde, 0x24, 0x36, 0xb0, 0x9c, 0x31, 0x20, 0x00, 0x00,
+	0xff, 0xff, 0x6c, 0x87, 0x68, 0x6d, 0x19, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -174,7 +174,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type Ampel2Client interface {
-	SetColor(ctx context.Context, in *Col, opts ...grpc.CallOption) (*Ack, error)
+	UpdateColor(ctx context.Context, in *Col, opts ...grpc.CallOption) (*Ack, error)
 	GetColor(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Col, error)
 }
 
@@ -186,9 +186,9 @@ func NewAmpel2Client(cc grpc.ClientConnInterface) Ampel2Client {
 	return &ampel2Client{cc}
 }
 
-func (c *ampel2Client) SetColor(ctx context.Context, in *Col, opts ...grpc.CallOption) (*Ack, error) {
+func (c *ampel2Client) UpdateColor(ctx context.Context, in *Col, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/ampel.ampel2/setColor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ampel.ampel2/UpdateColor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (c *ampel2Client) SetColor(ctx context.Context, in *Col, opts ...grpc.CallO
 
 func (c *ampel2Client) GetColor(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Col, error) {
 	out := new(Col)
-	err := c.cc.Invoke(ctx, "/ampel.ampel2/getColor", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ampel.ampel2/GetColor", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func (c *ampel2Client) GetColor(ctx context.Context, in *empty.Empty, opts ...gr
 
 // Ampel2Server is the server API for Ampel2 service.
 type Ampel2Server interface {
-	SetColor(context.Context, *Col) (*Ack, error)
+	UpdateColor(context.Context, *Col) (*Ack, error)
 	GetColor(context.Context, *empty.Empty) (*Col, error)
 }
 
@@ -214,8 +214,8 @@ type Ampel2Server interface {
 type UnimplementedAmpel2Server struct {
 }
 
-func (*UnimplementedAmpel2Server) SetColor(ctx context.Context, req *Col) (*Ack, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetColor not implemented")
+func (*UnimplementedAmpel2Server) UpdateColor(ctx context.Context, req *Col) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateColor not implemented")
 }
 func (*UnimplementedAmpel2Server) GetColor(ctx context.Context, req *empty.Empty) (*Col, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetColor not implemented")
@@ -225,20 +225,20 @@ func RegisterAmpel2Server(s *grpc.Server, srv Ampel2Server) {
 	s.RegisterService(&_Ampel2_serviceDesc, srv)
 }
 
-func _Ampel2_SetColor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Ampel2_UpdateColor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Col)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(Ampel2Server).SetColor(ctx, in)
+		return srv.(Ampel2Server).UpdateColor(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ampel.ampel2/SetColor",
+		FullMethod: "/ampel.ampel2/UpdateColor",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(Ampel2Server).SetColor(ctx, req.(*Col))
+		return srv.(Ampel2Server).UpdateColor(ctx, req.(*Col))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -266,11 +266,11 @@ var _Ampel2_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*Ampel2Server)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "setColor",
-			Handler:    _Ampel2_SetColor_Handler,
+			MethodName: "UpdateColor",
+			Handler:    _Ampel2_UpdateColor_Handler,
 		},
 		{
-			MethodName: "getColor",
+			MethodName: "GetColor",
 			Handler:    _Ampel2_GetColor_Handler,
 		},
 	},

@@ -105,7 +105,7 @@ func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.Col, e
 	return &pb.Col{Color: pb.Color(farbe)}, nil
 }
 
-func (*ampel2Server) SetColor(ctx context.Context, req *pb.Col) (*pb.Ack, error) {
+func (*ampel2Server) UpdateColor(ctx context.Context, req *pb.Col) (*pb.Ack, error) {
 	var col = req.Color
 	var ack pb.Ack
 	ack.Success = true

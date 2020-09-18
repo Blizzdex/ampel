@@ -20,6 +20,6 @@ message ack {
 }
 
 service ampel2 {
-  rpc setColor(col) returns (ack);
-  rpc getColor(google.protobuf.Empty) returns (col);
+  rpc UpdateColor(col) returns (ack);
+  rpc GetColor(google.protobuf.Empty) returns (col);
 }
