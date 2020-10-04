@@ -2,10 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Green</title>
+    <title>{{.Col}}</title>
 
 </head>
 <body style="background-color:{{.Col}};">
+<div id="notWatch">
 <h1>The ampelcolour is {{.Col}}</h1>
+</div>
+
+<p id="watch"> <p/>
+
+
+<script>
+    <!--
+
+    function watch(){
+        if (!document.all&&!document.getElementById) {
+            return
+        } else {
+
+            theOtherelement = document.getElementById? document.getElementById("notWatch"): document.all.watch
+            offset = theOtherelement.offsetHeight;
+            offsetHeight = ((screen.height - theOtherelement - 100) / 2);
+            thelement = document.getElementById? document.getElementById("watch"): document.all.watch
+
+            var Digital=new Date()
+            var hours=Digital.getHours()
+            var minutes=Digital.getMinutes()
+            var seconds=Digital.getSeconds()
+
+            if (hours<=9) {
+
+                hours="0"+hours
+            }
+            if (minutes<=9) {
+                minutes="0"+minutes
+            }
+            if (seconds<=9) {
+
+                seconds="0"+seconds
+            }
+
+            var csgtime=hours+":"+minutes+":"+seconds
+            thelement.style.margin = offsetHeight + "px auto";
+
+            thelement.innerHTML="<p class='watch'>"+csgtime+"</p>"
+
+            setTimeout(watch,1000)
+        }
+    }
+    window.onload=watch
+
+    //-->
+</script>
+
 </body>
 </html>
