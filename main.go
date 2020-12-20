@@ -69,6 +69,9 @@ func main() {
 		grpcServer.Serve(lis)
 	}()
 
+	//set up file server
+	var fileServer = http.FileServer(http.Dir("."))
+	http.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 	//handle http requests
 	l.Println("Listening")
 	http.HandleFunc("/set", setcol)

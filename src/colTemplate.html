@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
     <meta charset="UTF-8">
     <title>{{.Col}}</title>
-
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            background-image: url('/resources/src/resources/background.jpeg');
+            background-size: 1300px;
+        }
+    </style>
 </head>
-<body style="background-color:{{.Col}};">
+<body>
+
 <div id="notWatch">
 <h1>The ampelcolour is {{.Col}}</h1>
 </div>

@@ -76,13 +76,13 @@ func setcol(w http.ResponseWriter, r *http.Request) {
 		}
 		//Write out the new colour to the webpage
 
-		getcol(w, r)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	//If it is a get request on the /set, we return the form to fill out.
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "src/setform.html")
+		http.ServeFile(w, r, "src/setform2.html")
 	}
 
 	return

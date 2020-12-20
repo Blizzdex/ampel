@@ -1,23 +1,53 @@
-<!--Form used to ask the user for a new colour for the ampel-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Set Colour</title>
-    <style>
-
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Demo App</title>
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://static.vseth.ethz.ch/assets/vseth-0000-vseth/theme.css"
+    />
 </head>
 <body>
-    <h1>Set the Ampel colour here</h1>
+<div class="mobile-capable">
+    <nav
+            class="navbar navbar-expand-lg navbar-dark navbar-global bg-primary static-top"
+            data-ignore
+    >
+        <div class="container">
+            <a class="navbar-brand" href="#">&nbsp;</a>
+        </div>
+    </nav>
+    <nav
+            class="navbar navbar-expand-lg navbar-light bg-white sticky-top"
+            style="margin-bottom: 40px;"
+    >
+        <div class="container">
+            <a class="navbar-brand" href="#">Ampel-Admin</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="//vis.ethz.ch">VIS</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+<div class="container">
     <form method="post" action="/set">
-            <input id="green" type="radio" name="col" value=1>
+        <div class="form-group">
             <label for="green">Green</label>
-            <input id="yellow" type="radio" name="col" value=2>
+            <input type="radio" class="form-control" id="green" name="col" value=1>
             <label for="yellow">Yellow</label>
-            <input id="red" type="radio" name="col" value=3>
+            <input type="radio" class="form-control" id="yellow" name="col" value=2>
             <label for="red">Red</label>
-        <button>Send</button>
+            <input type="radio" class="form-control" id="red" name="col" value=3>
+            <button type="submit" class="btn">Send</button>
+        </div>
     </form>
+</div>
+
 </body>
 </html>
