@@ -26,7 +26,6 @@ var (
 )
 
 type ampel2Server struct {
-	pb.UnimplementedAmpel2Server
 }
 
 func checkArgs() {
@@ -104,7 +103,7 @@ func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.Col, e
 	sqlStatement := `SELECT color FROM color`
 	var farbe int
 	_ = db.QueryRow(sqlStatement).Scan(&farbe)
-
+	l.Println("Grpc returned: " + string(farbe))
 	return &pb.Col{Color: pb.Color(farbe)}, nil
 }
 
