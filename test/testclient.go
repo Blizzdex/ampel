@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/golang/protobuf/ptypes/empty"
-	pb "gitlab.ch/ampel2/ampel"
-	"google.golang.org/grpc"
 	"log"
 	"time"
+
+	"github.com/golang/protobuf/ptypes/empty"
+	pb "gitlab.ethz.ch/vis/cat/ampel2/servis/vseth/vis/ampel"
+	"google.golang.org/grpc"
 )
 
 var serverAddr = flag.String("server_addr", "localhost:8083", "addr of ampel server")
@@ -21,7 +22,7 @@ func main() {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	defer conn.Close()
-	client := pb.NewAmpel2Client(conn)
+	client := pb.NewAmpelClient(conn)
 	//request the colour now.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
