@@ -1,0 +1,33 @@
+postgres:
+    - name: db
+ingress:
+  - name: default
+    subdomain: ampel
+    http:
+      - path: /
+        port: 80
+  - name: grpc
+    subdomain: api.ampel
+    grpc:
+      - port: 7777
+  - name: grpcweb
+    subdomain: webapi.ampel
+    grpc-web:
+      - port: 7777
+
+auth:
+  - name: vis-ampel
+    accessType: bearer
+    clientProtocol: openid-connect
+    validRedirectURIs: []
+    roles:
+      - name: admin
+        description: Admin role for ampel2
+
+servis:
+  provides:
+    - name: "vseth.vis.ampel"
+      ingress: default
+      ssl: true
+
+

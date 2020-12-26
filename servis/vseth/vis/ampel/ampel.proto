@@ -1,0 +1,34 @@
+syntax = "proto3";
+package vseth.vis.ampel;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "servis/vseth/vis/ampel";
+option java_package = "ch.vseth.vis.ampel";
+option java_multiple_files = true;
+
+service Ampel {
+  rpc UpdateColor(UpdateColorRequest) returns (Ack);
+  rpc GetColor(google.protobuf.Empty) returns (GetColorResponse);
+}
+
+enum Color {
+  INV=0;
+  GREEN=1;
+  YELLOW=2;
+  RED=3;
+}
+
+
+message UpdateColorRequest {
+  Color color = 1;
+}
+
+message GetColorResponse {
+  Color color = 1;
+}
+
+message Ack {
+  bool success = 1;
+}
+

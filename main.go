@@ -5,20 +5,21 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
+	"strings"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	_ "github.com/lib/pq"
 	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
-	pb "gitlab.ch/ampel2/ampel"
+	pb "gitlab.ethz.ch/vis/cat/ampel2/servis/vseth/vis/ampel"
 	"google.golang.org/grpc"
-	"net"
-	"net/http"
-	"strings"
 )
 
 //set up the ampel server variables
 var (
-	portgrpc    = flag.Int("port", 8083, "Port for grpc ampel requests")
+	portgrpc    = flag.Int("port", 7777, "Port for grpc ampel requests")
 	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
 	db          *sql.DB //pointer to the postgresdb
 	setup       bool    = false
@@ -62,10 +63,10 @@ func main() {
 	}
 	var grpcServer = grpc.NewServer()
 	var serv = ampel2Server{}
-	pb.RegisterAmpel2Server(grpcServer, &serv)
+	pb.RegisterAmpelServer(grpcServer, &serv)
 	go func() {
 		l.Info("ampel up")
-		grpcServer.Serve(lis)
+		l.Fatal(grpcServer.Serve(lis))
 	}()
 
 	//set up file server
@@ -98,16 +99,16 @@ func connectDB() {
 }
 
 //The handlers for grpc requests.
-func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.Col, error) {
+func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResponse, error) {
 	//Create the right colour elem.
 	sqlStatement := `SELECT color FROM color`
 	var farbe int
 	_ = db.QueryRow(sqlStatement).Scan(&farbe)
-	l.Println("Grpc returned: " + string(farbe))
-	return &pb.Col{Color: pb.Color(farbe)}, nil
+
+	return &pb.GetColorResponse{Color: pb.Color(farbe)}, nil
 }
 
-func (*ampel2Server) UpdateColor(ctx context.Context, req *pb.Col) (*pb.Ack, error) {
+func (*ampel2Server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*pb.Ack, error) {
 	var col = req.Color
 	var ack pb.Ack
 	ack.Success = true

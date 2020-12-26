@@ -1,9 +1,10 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //enum for the ampelcolours with methods to use it.
