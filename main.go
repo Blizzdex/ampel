@@ -27,7 +27,6 @@ var (
 )
 
 type ampel2Server struct {
-	pb.UnimplementedAmpelServer
 }
 
 func checkArgs() {

@@ -36,14 +36,15 @@
     </nav>
 </div>
 <div class="container">
+    <h5>Change the Ampel-colour by choosing the right option and sending.</h5><br>
     <form method="post" action="/set">
         <div class="form-group">
-            <label for="green">Green</label>
-            <input type="radio" class="form-control" id="green" name="col" value=1>
-            <label for="yellow">Yellow</label>
-            <input type="radio" class="form-control" id="yellow" name="col" value=2>
-            <label for="red">Red</label>
-            <input type="radio" class="form-control" id="red" name="col" value=3>
+            <input type="radio" class="radio-inline" id="green" name="col" value=1>
+            <label for="green" class="col-2">Green</label>
+            <input type="radio" class="radio-inline" id="yellow" name="col" value=2>
+            <label for="yellow" class="col-2">Yellow</label>
+            <input type="radio" class="radio-inline" id="red" name="col" value=3>
+            <label for="red" class="col-2">Red</label><br><br>
             <button type="submit" class="btn">Send</button>
         </div>
     </form>
