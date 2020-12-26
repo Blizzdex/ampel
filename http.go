@@ -82,7 +82,7 @@ func setcol(w http.ResponseWriter, r *http.Request) {
 
 	//If it is a get request on the /set, we return the form to fill out.
 	if r.Method == "GET" {
-		http.ServeFile(w, r, "src/setform2.html")
+		http.ServeFile(w, r, "src/setform.html")
 	}
 
 	return
