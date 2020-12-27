@@ -1,8 +1,0 @@
-variables:
-  VIS_CI_APP_NAME: "ampel2"
-  VIS_CI_DEPLOYMENT_SUBDOMAIN: "ampel2"
-
-  VIS_CI_ENABLE_POSTGRES: 'true'
-
-
-
