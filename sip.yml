@@ -23,11 +23,3 @@ auth:
     roles:
       - name: admin
         description: Admin role for ampel2
-
-servis:
-  provides:
-    - name: "vseth.vis.ampel"
-      ingress: default
-      ssl: true
-
-
