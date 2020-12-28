@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var serverAddr = flag.String("server_addr", "localhost:8083", "addr of ampel server")
+var serverAddr = flag.String("server_addr", "localhost:7777", "addr of ampel server")
 
 //set up ampel client to interact with the server.
 func main() {
@@ -21,13 +21,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
-<<<<<<< HEAD
 	defer conn.Close()
 	client := pb.NewAmpelClient(conn)
-=======
-	client := pb.NewAmpel2Client(conn)
-	time.Sleep(1000)
->>>>>>> c88daf37c4bdf6b136d27ce48045f592a89c5dd8
 	//request the colour now.
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	time.Sleep(1000)

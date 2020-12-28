@@ -57,7 +57,7 @@ func main() {
 	l.Printf("applied %v migrations\n", migCount)
 
 	//set up the ampel server
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *portgrpc))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *portgrpc))
 	if err != nil {
 		l.Fatalf("failed to listen: %v", err)
 	}

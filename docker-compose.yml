@@ -17,8 +17,6 @@ services:
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=docker
-    ports:
-      - "5432:5432"
     volumes:
       - ./data/sql:/var/lib/postgresql/data
   ampel2:
