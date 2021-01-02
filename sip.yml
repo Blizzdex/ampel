@@ -17,7 +17,7 @@ ingress:
       - port: 7777
 
 auth:
-  - name: vis-ampel
+  - name: oidc
     accessType: confidential
     clientProtocol: openid-connect
     validRedirectURIs:
