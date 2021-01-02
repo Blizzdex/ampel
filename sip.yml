@@ -1,5 +1,6 @@
 postgres:
     - name: db
+
 ingress:
   - name: default
     subdomain: ampel
@@ -19,7 +20,8 @@ auth:
   - name: vis-ampel
     accessType: confidential
     clientProtocol: openid-connect
-    validRedirectURIs: https://ampel.svis.ethz.ch/*
+    validRedirectURIs:
+      -https://ampel.svis.ethz.ch/*
     roles:
       - name: admin
         description: Admin role for ampel2
@@ -46,6 +48,5 @@ sidecar:
       secureCookie: "true"
       resources: |  # Note this character is necessary!
         - uri: "/set"
-        -groups: admin
         whitelisted: false
 
