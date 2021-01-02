@@ -7,11 +7,11 @@ ingress:
       - path: /
         port: 80
   - name: grpc
-    subdomain: api.ampel
+    subdomain: ampel.grpc
     grpc:
       - port: 7777
   - name: grpcweb
-    subdomain: webapi.ampel
+    subdomain: ampel-web.grpc
     grpc-web:
       - port: 7777
 
@@ -23,11 +23,3 @@ auth:
     roles:
       - name: admin
         description: Admin role for ampel2
-
-servis:
-  provides:
-    - name: "vseth.vis.ampel"
-      ingress: default
-      ssl: true
-
-
