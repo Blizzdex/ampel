@@ -21,7 +21,7 @@ auth:
     accessType: confidential
     clientProtocol: openid-connect
     validRedirectURIs:
-      -https://ampel.svis.ethz.ch/*
+      - https://ampel.svis.ethz.ch/*
     roles:
       - name: admin
         description: Admin role for ampel2
@@ -46,7 +46,11 @@ sidecar:
       containerPort: "80"
       redirectionUrl: https://ampel.svis.ethz.ch
       secureCookie: "true"
-      resources: |  # Note this character is necessary!
+      resources:
         - uri: /set
+        methods:
+          - POST
+        roles:
+          - admin
         whitelisted: false
 
