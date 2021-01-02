@@ -47,6 +47,6 @@ sidecar:
       redirectionUrl: https://ampel.svis.ethz.ch
       secureCookie: "true"
       resources: |  # Note this character is necessary!
-        - uri: "/set"
+        - uri: /set
         whitelisted: false
 

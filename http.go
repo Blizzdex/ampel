@@ -61,8 +61,11 @@ func setcol(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		col := r.FormValue("col")
 		if col == "" {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
+		//TODO: add a check if col is in {1,2,3} otherwise abort
+
 		//Write the new colour into the db
 		sqlStatement := `
 			UPDATE color
