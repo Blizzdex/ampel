@@ -31,10 +31,6 @@ env:
     secret:
       create: random
       key: keycloak-enc-key
-  - name: CATEGORIES
-    secret:
-      provided:
-      key: categories
 
 sidecar:
   - name: proxy
@@ -46,11 +42,11 @@ sidecar:
       containerPort: "80"
       redirectionUrl: https://ampel.svis.ethz.ch
       secureCookie: "true"
-      resources:
+      resources: |
         - uri: /set
-        methods:
-          - POST
-        roles:
-          - admin
-        whitelisted: false
+          methods:
+            - POST
+          roles:
+            - admin
+          whitelisted: false
 
