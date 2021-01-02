@@ -17,9 +17,35 @@ ingress:
 
 auth:
   - name: vis-ampel
-    accessType: bearer
+    accessType: confidential
     clientProtocol: openid-connect
-    validRedirectURIs: []
+    validRedirectURIs: https://ampel.svis.ethz.ch/*
     roles:
       - name: admin
         description: Admin role for ampel2
+
+env:
+  - name: KEYCLOAK_ENCRYPTION_KEY
+    secret:
+      create: random
+      key: keycloak-enc-key
+  - name: CATEGORIES
+    secret:
+      provided:
+      key: categories
+
+sidecar:
+  - name: proxy
+    template: auth-proxy
+    values:
+      clientId: $(SIP_AUTH_OIDC_CLIENT_ID)
+      clientSecret: $(SIP_AUTH_OIDC_CLIENT_SECRET)
+      port: "8080"
+      containerPort: "80"
+      redirectionUrl: https://ampel.svis.ethz.ch
+      secureCookie: "true"
+      resources: |  # Note this character is necessary!
+        - uri: "/set"
+        -groups: admin
+        whitelisted: false
+
