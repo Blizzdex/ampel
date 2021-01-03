@@ -47,4 +47,5 @@ sidecar:
           roles:
             - vis_staging_ampel2_oidc:admin
           whitelisted: false
-
+        - uri: /
+          whitelisted: true
