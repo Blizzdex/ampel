@@ -49,3 +49,5 @@ sidecar:
           whitelisted: false
         - uri: /
           whitelisted: true
+        - uri: /resources/src/resources/*
+          whitelisted: true
