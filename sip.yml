@@ -40,12 +40,10 @@ sidecar:
       clientSecret: $(SIP_AUTH_OIDC_CLIENT_SECRET)
       port: "8080"
       containerPort: "80"
-      redirectionUrl: https://ampel.svis.ethz.ch
+      redirectionUrl: https://ampel.svis.ethz.ch/set
       secureCookie: "true"
       resources: |
         - uri: /set
-          methods:
-            - POST
           roles:
             - admin
           whitelisted: false
