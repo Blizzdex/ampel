@@ -97,7 +97,7 @@ func connectDB() (*sql.DB, error) {
 }
 
 //The handlers for grpc requests.
-func (*server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResponse, error) {
+func (*server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResponse, error) {
 	//Create the right colour elem.
 	sqlStatement := `SELECT color FROM color`
 	var color int
@@ -106,20 +106,17 @@ func (*server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResp
 	return &pb.GetColorResponse{Color: pb.Color(color)}, err
 }
 
-func (*server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*pb.Ack, error) {
+func (*server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
 	var col = req.Color
-	var ack pb.Ack
-	ack.Success = true
 	sqlStatement := `
 			UPDATE color
 			SET color = $1
 			WHERE id=1`
 	_, err := db.Exec(sqlStatement, col)
 	if err != nil {
-		ack.Success = false
 		l.Warn("Failed to set colour")
 		connectDB()
 	}
-	return &ack, nil
+	return &empty.Empty{}, err
 
 }

@@ -8,7 +8,7 @@ option java_package = "ch.vseth.vis.ampel";
 option java_multiple_files = true;
 
 service Ampel {
-  rpc UpdateColor(UpdateColorRequest) returns (Ack);
+  rpc UpdateColor(UpdateColorRequest) returns (google.protobuf.Empty);
   rpc GetColor(google.protobuf.Empty) returns (GetColorResponse);
 }
 
@@ -28,7 +28,4 @@ message GetColorResponse {
   Color color = 1;
 }
 
-message Ack {
-  bool success = 1;
-}
 
