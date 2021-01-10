@@ -22,11 +22,10 @@ var (
 	portgrpc    = flag.Int("port", 7777, "Port for grpc ampel requests")
 	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
 	db          *sql.DB //pointer to the postgresdb
-	setup       bool    = false
 	l           *log.Logger
 )
 
-type ampel2Server struct {
+type server struct {
 }
 
 func checkArgs() {
@@ -62,7 +61,7 @@ func main() {
 		l.Fatalf("failed to listen: %v", err)
 	}
 	var grpcServer = grpc.NewServer()
-	var serv = ampel2Server{}
+	var serv = server{}
 	pb.RegisterAmpelServer(grpcServer, &serv)
 	go func() {
 		l.Info("ampel up")
@@ -99,7 +98,7 @@ func connectDB() {
 }
 
 //The handlers for grpc requests.
-func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResponse, error) {
+func (*server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResponse, error) {
 	//Create the right colour elem.
 	sqlStatement := `SELECT color FROM color`
 	var farbe int
@@ -108,7 +107,7 @@ func (*ampel2Server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetCol
 	return &pb.GetColorResponse{Color: pb.Color(farbe)}, nil
 }
 
-func (*ampel2Server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*pb.Ack, error) {
+func (*server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*pb.Ack, error) {
 	var col = req.Color
 	var ack pb.Ack
 	ack.Success = true
