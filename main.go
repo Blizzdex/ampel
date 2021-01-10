@@ -46,19 +46,25 @@ func main() {
 	l.SetReportCaller(false)
 	l.SetFormatter(&log.JSONFormatter{})
 	//connect to the postgres DB
-	connectDB()
+	var err error
+	db, err = connectDB()
+	if err != nil {
+		l.WithError(err).Fatal("failed to connect to db")
+	}
+	l.Println("Connection to db successful")
+
 	//apply the migrations
 	var migrations = migrate.FileMigrationSource{Dir: "migrations"}
-	migCount, err2 := migrate.Exec(db, "postgres", migrations, migrate.Up)
-	if err2 != nil {
-		l.Fatalf("failed to migrate: %v\n", err2)
+	migCount, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	if err != nil {
+		l.WithError(err).Fatal("failed to migrate")
 	}
 	l.Printf("applied %v migrations\n", migCount)
 
 	//set up the ampel server
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *portgrpc))
 	if err != nil {
-		l.Fatalf("failed to listen: %v", err)
+		l.WithError(err).Fatal("failed to listen")
 	}
 	var grpcServer = grpc.NewServer()
 	var serv = server{}
@@ -79,22 +85,15 @@ func main() {
 
 }
 
-//func to connect to the Database if connection fails, the program will panic
-func connectDB() {
+//func to connect to the Database if connection fails, the program will log or return the error
+func connectDB() (*sql.DB, error) {
 	//set up postgresql db.
-	var err error
-
-	db, err = sql.Open("postgres", fmt.Sprintf("postgres://%v", *postgresURL))
+	var dbp, err = sql.Open("postgres", fmt.Sprintf("postgres://%v", *postgresURL))
 	if err != nil {
-		panic(err)
+		return dbp, err
 	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	l.Println("Connection to db successful")
+	err = dbp.Ping()
+	return dbp, err
 }
 
 //The handlers for grpc requests.
