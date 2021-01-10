@@ -100,10 +100,10 @@ func connectDB() (*sql.DB, error) {
 func (*server) GetColor(ctx context.Context, req *empty.Empty) (*pb.GetColorResponse, error) {
 	//Create the right colour elem.
 	sqlStatement := `SELECT color FROM color`
-	var farbe int
-	_ = db.QueryRow(sqlStatement).Scan(&farbe)
+	var color int
+	var err = db.QueryRow(sqlStatement).Scan(&color)
 
-	return &pb.GetColorResponse{Color: pb.Color(farbe)}, nil
+	return &pb.GetColorResponse{Color: pb.Color(color)}, err
 }
 
 func (*server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*pb.Ack, error) {
