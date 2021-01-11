@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"strings"
@@ -21,13 +22,15 @@ import (
 var (
 	portgrpc    = flag.Int("port", 7777, "Port for grpc ampel requests")
 	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
-	db          *sql.DB //pointer to the postgresdb
 	l           *log.Logger
 )
 
 type server struct {
+	db *sql.DB //pointer to the postgresdb
+	t  *template.Template
 }
 
+//function parses the args coming from cinit and checks for empty args.
 func checkArgs() {
 	flag.Parse()
 	for k, v := range map[string]string{"postgres-url": *postgresURL} {
@@ -39,6 +42,10 @@ func checkArgs() {
 
 //Main function, the webpage responds on /set and / get request and on /set post requests.
 func main() {
+	//define server struct
+	var serv = server{}
+
+	//read program args
 	checkArgs()
 
 	//Set up the logger
@@ -47,7 +54,7 @@ func main() {
 	l.SetFormatter(&log.JSONFormatter{})
 	//connect to the postgres DB
 	var err error
-	db, err = connectDB()
+	serv.db, err = connectDB()
 	if err != nil {
 		l.WithError(err).Fatal("failed to connect to db")
 	}
@@ -55,7 +62,7 @@ func main() {
 
 	//apply the migrations
 	var migrations = migrate.FileMigrationSource{Dir: "migrations"}
-	migCount, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+	migCount, err := migrate.Exec(serv.db, "postgres", migrations, migrate.Up)
 	if err != nil {
 		l.WithError(err).Fatal("failed to migrate")
 	}
@@ -67,7 +74,6 @@ func main() {
 		l.WithError(err).Fatal("failed to listen")
 	}
 	var grpcServer = grpc.NewServer()
-	var serv = server{}
 	pb.RegisterAmpelServer(grpcServer, &serv)
 	go func() {
 		l.Info("ampel up")
@@ -79,8 +85,8 @@ func main() {
 	http.Handle("/resources/", http.StripPrefix("/resources", fileServer))
 	//handle http requests
 	l.Println("Listening")
-	http.HandleFunc("/set", setcol)
-	http.HandleFunc("/", getcol)
+	http.HandleFunc("/set", serv.setColor)
+	http.HandleFunc("/", serv.getColor)
 	l.Fatal(http.ListenAndServe(":80", nil))
 
 }
@@ -96,27 +102,45 @@ func connectDB() (*sql.DB, error) {
 	return dbp, err
 }
 
-//The handlers for grpc requests.
-func (*server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResponse, error) {
-	//Create the right colour elem.
+//function used to extract color from db
+func (s server) DbGetColor() (int, error) {
 	sqlStatement := `SELECT color FROM color`
 	var color int
-	var err = db.QueryRow(sqlStatement).Scan(&color)
-
-	return &pb.GetColorResponse{Color: pb.Color(color)}, err
+	var err = s.db.QueryRow(sqlStatement).Scan(&color)
+	if color < 1 || color > 3 {
+		log.Warn("Failed to get valid AmpelColor.")
+		return 0, err
+	}
+	return color, err
 }
 
-func (*server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
-	var col = req.Color
+//check validity of new color and update color if it is valid
+func (s server) DbSetColor(color int) error {
+	if color < 1 || color > 3 {
+		return nil
+	}
+
 	sqlStatement := `
 			UPDATE color
 			SET color = $1
 			WHERE id=1`
-	_, err := db.Exec(sqlStatement, col)
+	_, err := s.db.Exec(sqlStatement, color)
 	if err != nil {
 		l.Warn("Failed to set colour")
-		connectDB()
 	}
+	return err
+}
+
+//The handlers for grpc requests.
+func (s *server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResponse, error) {
+	//Create the right color elem.
+	var color, err = (*s).DbGetColor()
+	return &pb.GetColorResponse{Color: pb.Color(color)}, err
+}
+
+func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
+	var color = int(req.Color)
+	var err = s.DbSetColor(color)
 	return &empty.Empty{}, err
 
 }

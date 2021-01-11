@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -11,74 +12,75 @@ import (
 type color int32 //why would I need a col_t type?
 
 const (
-	GREEN  color = 1
-	YELLOW color = 2
-	RED    color = 3
+	GREEN  int = 1
+	YELLOW int = 2
+	RED    int = 3
 )
 
 type col4Temp struct {
 	Col string
 }
 
-var color_name = map[color]string{
+var colorName = map[int]string{
 	0: "invalidFormat",
 	1: "green",
 	2: "yellow",
 	3: "red",
 }
 
-func (c color) file() string {
-	return string("src/" + color_name[c] + ".html")
-}
-
 //Handler, just giving back the current colour of the ampel
-func getcol(w http.ResponseWriter, r *http.Request) {
+func (s server) getColor(w http.ResponseWriter, r *http.Request) {
 	//read out the colour from the db
-	sqlStatement := `SELECT color FROM color`
-	var res color
-	_ = db.QueryRow(sqlStatement).Scan(&res)
-	var col = color_name[res]
-	if col == "invalidFormat" {
+	var res, err = s.DbGetColor()
+	//check if color is valid
+	if res == 0 {
 		w.Write([]byte("Could not display."))
-		log.Warn("Failed to get valid AmpelColor.")
+		log.Warn("failed to get color, invalid color.")
 		return
 	}
-	//and print the colour to the website.
-	var p = col4Temp{Col: color_name[res]}
-	var t, e = template.ParseFiles("src/colTemplate.html")
-	if e != nil {
-		l.Fatalf("Failed to parse Template")
+	if err != nil {
+		w.Write([]byte("Could not display."))
+		log.WithError(err).Warn("failed to get ampelcolor")
+		return
 	}
-	t.Execute(w, p)
+	var color = colorName[res]
+	//and print the colour to the website.
+	var p = col4Temp{Col: color}
+
+	//create the template if that has not been done yet.
+	if s.t == nil {
+		var e error
+		s.t, e = template.ParseFiles("src/colTemplate.html")
+		if e != nil {
+			l.Fatalf("Failed to parse Template")
+		}
+	}
+
+	s.t.Execute(w, p)
 	return
 }
 
 /*Handler to set the ampelcolor, on a get request, a form is printed and when the form is submited
 this creates a post reqest also handled by that handler which changes the Ampelfarbe var.
 */
-func setcol(w http.ResponseWriter, r *http.Request) {
+func (s server) setColor(w http.ResponseWriter, r *http.Request) {
 	//Handle a post request to set the color
 	if r.Method == "POST" {
-		col := r.FormValue("col")
+		//get the color from the form
+		var col = r.FormValue("col")
 		if col == "" {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		//TODO: add a check if col is in {1,2,3} otherwise abort
-
-		//Write the new colour into the db
-		sqlStatement := `
-			UPDATE color
-			SET color = $1
-			WHERE id=1`
-		_, err := db.Exec(sqlStatement, col)
+		var color, err = strconv.ParseInt(col, 10, 32)
 		if err != nil {
-			w.Write([]byte("Could not change Ampelcolour. Retry to set colour!"))
-			log.Warn("Could not change Ampelcolour, connection to DB failed. Retrying to connect to DB!")
-			connectDB() //can cause program to panic if the connection fails.
+			log.Warn("Could not change Ampelcolor, invalid input.")
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
-		//Write out the new colour to the webpage
+
+		//set the color in the db
+		s.DbSetColor(int(color))
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
