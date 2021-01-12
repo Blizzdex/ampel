@@ -34,12 +34,13 @@ func (s server) getColor(w http.ResponseWriter, r *http.Request) {
 	var res, err = s.DbGetColor()
 	//check if color is valid
 	if res == 0 {
-		w.Write([]byte("Could not display."))
+
+		http.Error(w, "Could not display.", 500)
 		log.Warn("failed to get color, invalid color.")
 		return
 	}
 	if err != nil {
-		w.Write([]byte("Could not display."))
+		http.Error(w, "Could not display.", 500)
 		log.WithError(err).Warn("failed to get ampelcolor")
 		return
 	}
@@ -65,17 +66,17 @@ this creates a post reqest also handled by that handler which changes the Ampelf
 */
 func (s server) setColor(w http.ResponseWriter, r *http.Request) {
 	//Handle a post request to set the color
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		//get the color from the form
 		var col = r.FormValue("col")
 		if col == "" {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, "/", http.StatusBadRequest)
 			return
 		}
 		var color, err = strconv.ParseInt(col, 10, 32)
 		if err != nil {
 			log.Warn("Could not change Ampelcolor, invalid input.")
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			http.Redirect(w, r, "/", http.StatusBadRequest)
 			return
 		}
 
@@ -87,7 +88,7 @@ func (s server) setColor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//If it is a get request on the /set, we return the form to fill out.
-	if r.Method == "GET" {
+	if r.Method == http.MethodGet {
 		http.ServeFile(w, r, "src/setform.html")
 	}
 
