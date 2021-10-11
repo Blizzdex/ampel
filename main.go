@@ -8,9 +8,12 @@ import (
 	"html/template"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
+	oidc "github.com/coreos/go-oidc"
 	"github.com/golang/protobuf/ptypes/empty"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	_ "github.com/lib/pq"
 	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
@@ -139,8 +142,42 @@ func (s *server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResp
 }
 
 func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
+	//read out authentication token from context
+	rawIDToken, err := grpc_auth.AuthFromMD(ctx, "bearer")
+	if err != nil {
+		l.Warn("Authentication token missing.")
+		return &empty.Empty{}, err
+	}
+	//check request authenticiy
+	//TODO save provider + verifier in server (move code to main)
+	provider, err := oidc.NewProvider(ctx, "https://auth.vseth.ethz.ch/auth/realms/VSETH") //localhost statt dessen
+	if err != nil {
+		l.Warn("Failed to fetch public key to authenticate grpc UpdateColor.")
+		return &empty.Empty{}, err
+	}
+	var clientID = os.Getenv("SIP_AUTH_OIDC_CLIENT_ID")
+	var verifier = provider.Verifier(&oidc.Config{ClientID: clientID})
+
+
+	idToken, err := verifier.Verify(ctx, rawIDToken)
+	if err != nil {
+		l.Warn("Failed to verify access token.")
+		return &empty.Empty{}, err
+	}
+	//now need to extract roles from claims in the token and then check if contains admin.
+	var t Token
+	t.token = idToken
+	var role = "Admin"
+
+
+	_, hasRole := Find(t.Roles(clientID), role)
+	if !hasRole {
+		l.Warn("Failed due to insuficient permissions of user.")
+		return &empty.Empty{}, nil
+	}
+
 	var color = int(req.Color)
-	var err = s.DbSetColor(color)
-	return &empty.Empty{}, err
+	var error = s.DbSetColor(color)
+	return &empty.Empty{}, error
 
 }

@@ -34,5 +34,20 @@ func main() {
 	var col = colour.Color
 	var c = pb.Color_name[int32(col)]
 	fmt.Println("Colour is: " + c)
+
+	//try to change the ampel color
+	var update = pb.UpdateColorRequest{
+		Color:                3,
+		XXX_NoUnkeyedLiteral: struct{}{},
+		XXX_unrecognized:     nil,
+		XXX_sizecache:        0,
+	}
+	_, err = client.UpdateColor(ctx, &update)
+
+	if err != nil {
+		log.Fatal("failed to update color")
+	}
+
+
 	time.Sleep(1000)
 }

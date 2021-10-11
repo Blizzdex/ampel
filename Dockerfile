@@ -1,4 +1,4 @@
-ARG goversion=1.14
+ARG goversion=1.15
 
 FROM golang:${goversion} as proto
 ARG PROTO_VERSION=3.7.1
