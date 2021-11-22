@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc/metadata"
 	"html/template"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
 	oidc "github.com/coreos/go-oidc"
@@ -23,9 +23,10 @@ import (
 
 //set up the ampel server variables
 var (
-	portgrpc    = flag.Int("port", 7777, "Port for grpc ampel requests")
-	postgresURL = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
-	l           *log.Logger
+	portgrpc       = flag.Int("port", 7777, "Port for grpc ampel requests")
+	postgresURL    = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
+	oidc_client_id = flag.String("client-id", "", "sets the client id of our ampel")
+	l              *log.Logger
 )
 
 type server struct {
@@ -36,7 +37,7 @@ type server struct {
 //function parses the args coming from cinit and checks for empty args.
 func checkArgs() {
 	flag.Parse()
-	for k, v := range map[string]string{"postgres-url": *postgresURL} {
+	for k, v := range map[string]string{"postgres-url": *postgresURL, "client-id": *oidc_client_id} {
 		if strings.HasPrefix("{{", v) {
 			l.Fatalf("missing required argument %v:\n", k)
 		}
@@ -144,33 +145,36 @@ func (s *server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResp
 func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
 	//read out authentication token from context
 	rawIDToken, err := grpc_auth.AuthFromMD(ctx, "bearer")
+	var meta, _ = metadata.FromIncomingContext(ctx)
+	l.Warn(meta)
 	if err != nil {
 		l.Warn("Authentication token missing.")
 		return &empty.Empty{}, err
 	}
 	//check request authenticiy
 	//TODO save provider + verifier in server (move code to main)
-	provider, err := oidc.NewProvider(ctx, "https://auth.vseth.ethz.ch/auth/realms/VSETH") //localhost statt dessen
+	provider, err := oidc.NewProvider(ctx, "http://172.18.0.1:8180/auth/realms/VSETH") //localhost statt dessen http://172.18.0.1:8180/auth/realms/VSETH
 	if err != nil {
 		l.Warn("Failed to fetch public key to authenticate grpc UpdateColor.")
+		l.Warn(err.Error())
 		return &empty.Empty{}, err
 	}
-	var clientID = os.Getenv("SIP_AUTH_OIDC_CLIENT_ID")
-	var verifier = provider.Verifier(&oidc.Config{ClientID: clientID})
 
+	l.Warn(*oidc_client_id)
+	var verifier = provider.Verifier(&oidc.Config{ClientID: *oidc_client_id, SkipIssuerCheck: true, SkipClientIDCheck: true})
 
 	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		l.Warn("Failed to verify access token.")
+		l.Warn(err.Error())
 		return &empty.Empty{}, err
 	}
 	//now need to extract roles from claims in the token and then check if contains admin.
 	var t Token
 	t.token = idToken
-	var role = "Admin"
+	var role = "admin"
 
-
-	_, hasRole := Find(t.Roles(clientID), role)
+	_, hasRole := Find(t.Roles(*oidc_client_id), role)
 	if !hasRole {
 		l.Warn("Failed due to insuficient permissions of user.")
 		return &empty.Empty{}, nil
