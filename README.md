@@ -2,7 +2,7 @@
 Contains an updated version of the Ampel, adapted to the current Vis  
 Techstack.
 
-#Repo-overview
+# Repo-overview
 In this section we shortly go over the content of the repo.
 * migrations: Folder containing DB configuration.
 * servis: Contains .proto files for GRPC.
@@ -21,5 +21,5 @@ In this section we shortly go over the content of the repo.
 * renovate.json: ???
 * sip.yml: Config telling the VIS/SIP infrastructure how to run the ampel.
 
-#How to Run
+# How to Run
 TODO
