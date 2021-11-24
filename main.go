@@ -173,8 +173,12 @@ func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*
 	var t Token
 	t.token = idToken
 	var role = "admin"
+	print("blablabla")
 
-	_, hasRole := Find(t.Roles(*oidc_client_id), role)
+	var m map[string]interface{}
+	print(t.token.Claims(&m))
+	print(m)
+	_, hasRole := Find(t.Roles("local-ampel"), role)
 	if !hasRole {
 		l.Warn("Failed due to insuficient permissions of user.")
 		return &empty.Empty{}, nil
