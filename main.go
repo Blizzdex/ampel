@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"google.golang.org/grpc/metadata"
 	"html/template"
 	"net"
 	"net/http"
@@ -145,8 +144,6 @@ func (s *server) GetColor(ctx context.Context, _ *empty.Empty) (*pb.GetColorResp
 func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*empty.Empty, error) {
 	//read out authentication token from context
 	rawIDToken, err := grpc_auth.AuthFromMD(ctx, "bearer")
-	var meta, _ = metadata.FromIncomingContext(ctx)
-	l.Warn(meta)
 	if err != nil {
 		l.Warn("Authentication token missing.")
 		return &empty.Empty{}, err
@@ -160,7 +157,7 @@ func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*
 		return &empty.Empty{}, err
 	}
 
-	l.Warn(*oidc_client_id)
+	//l.Warn(*oidc_client_id)
 	var verifier = provider.Verifier(&oidc.Config{ClientID: *oidc_client_id, SkipIssuerCheck: true, SkipClientIDCheck: true})
 
 	idToken, err := verifier.Verify(ctx, rawIDToken)
@@ -173,14 +170,10 @@ func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*
 	var t Token
 	t.token = idToken
 	var role = "admin"
-	print("blablabla")
 
-	var m map[string]interface{}
-	print(t.token.Claims(&m))
-	print(m)
-	_, hasRole := Find(t.Roles("local-ampel"), role)
+	_, hasRole := Find(t.Roles(*oidc_client_id), role)
 	if !hasRole {
-		l.Warn("Failed due to insuficient permissions of user.")
+		l.Warn("Failed due to insufficient permissions of user.")
 		return &empty.Empty{}, nil
 	}
 

@@ -35,7 +35,7 @@ services:
       - SIP_POSTGRES_DB_USER=docker
       - SIP_POSTGRES_DB_PW=docker
 
-      - SIP_AUTH_OIDC_CLIENT_ID=ampel-local
+      - SIP_AUTH_OIDC_CLIENT_ID=local-ampel
 
     depends_on:
       - postgres
