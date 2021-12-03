@@ -24,6 +24,7 @@ In this section we shortly go over the content of the repo.
 # How to Run Locally
 Make sure you have Docker and Docker-compose installed 
 (You should be able to install those via apt, brew or your other favourite package manager)
+
 Open a terminal window in the project repository and execute:
 ```
 sudo docker-compose up --build
@@ -34,5 +35,12 @@ To check it out just look up
 localhost:8080
 ``` 
 on your browser :) You should now see the Ampel homescreen in your browser.
+
+# How does one use it (very difficult)
+In order to change the color of the ampel you can go to: 
+```
+localhost:8080/set
+``` 
+PS: There really is no no more functionaltiy to it
 
 
