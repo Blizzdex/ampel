@@ -21,5 +21,4 @@ In this section we shortly go over the content of the repo.
 * renovate.json: ???
 * sip.yml: Config telling the VIS/SIP infrastructure how to run the ampel.
 
-# How to Run
-TODO
+# How to Run Locally
