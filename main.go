@@ -16,8 +16,9 @@ import (
 	_ "github.com/lib/pq"
 	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
-	pb "gitlab.ethz.ch/vis/cat/ampel2/servis/vseth/vis/ampel"
 	"google.golang.org/grpc"
+
+	pb "gitlab.ethz.ch/vseth/0403-isg/libraries/protostub-golang/vseth/vis/ampel"
 )
 
 //set up the ampel server variables
@@ -29,6 +30,7 @@ var (
 )
 
 type server struct {
+	pb.UnimplementedAmpelServer
 	db *sql.DB //pointer to the postgresdb
 	t  *template.Template
 }

@@ -15,4 +15,5 @@ require (
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	google.golang.org/grpc v1.37.1
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
+	gitlab.ethz.ch/vseth/0403-isg/libraries/protostub-golang v0.0.0-20211203184805-b2ae1a7ff1b4
 )

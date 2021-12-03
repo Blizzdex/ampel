@@ -4,19 +4,13 @@ FROM golang:${goversion} as proto
 ARG PROTO_VERSION=3.7.1
 RUN apt-get update && \
     apt-get install unzip
-RUN go get -u google.golang.org/grpc && \
-    go get -u github.com/golang/protobuf/protoc-gen-go 
+RUN go get -u google.golang.org/grpc
 ENV PATH=${PATH}:${GOPATH}/bin
-RUN PROTOC_ZIP=protoc-${PROTO_VERSION}-linux-x86_64.zip && \
-    curl -OL https://github.com/google/protobuf/releases/download/v${PROTO_VERSION}/$PROTOC_ZIP && \
-    unzip -o $PROTOC_ZIP -d /usr/local bin/protoc && \
-    rm -f $PROTOC_ZIP
 WORKDIR /servis
 COPY servis servis
-RUN protoc -I=servis --go_out=plugins=grpc:. servis/vseth/vis/ampel/ampel.proto
 
 
-#Stage 1 used to compile the go code
+# Stage 1 used to compile the go code
 FROM golang:${goversion} as server
 WORKDIR ampel2
 COPY go.* ./
