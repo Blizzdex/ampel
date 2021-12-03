@@ -40,7 +40,7 @@ type server struct {
 // TODO this thing does no checks at all! +
 func checkArgs() {
 	flag.Parse()
-	for k, v := range map[string]string{"postgres-url": *postgresURL, "client-id": *oidcClientId} {
+	for k, v := range map[string]string{"postgres-url": *postgresURL, "client-id": *oidcClientId, "issuer-url": *issuerURL} {
 		if strings.HasPrefix("{{", v) {
 			l.Fatalf("missing required argument %v:\n", k)
 		}
