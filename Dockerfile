@@ -6,8 +6,7 @@ RUN apt-get update && \
     apt-get install unzip
 RUN go get -u google.golang.org/grpc
 ENV PATH=${PATH}:${GOPATH}/bin
-WORKDIR /servis
-COPY servis servis
+
 
 
 # Stage 1 used to compile the go code
@@ -16,7 +15,6 @@ WORKDIR ampel2
 COPY go.* ./
 RUN go mod download
 COPY *.go ./
-COPY --from=proto /servis .
 RUN CGO_ENABLED=0 go build
 
 # Stage 1 is based on the vis base image.

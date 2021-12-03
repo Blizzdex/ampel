@@ -26,7 +26,13 @@ Make sure you have Docker and Docker-compose installed
 (You should be able to install those via apt, brew or your other favourite package manager)
 Open a terminal window in the project repository and execute:
 ```
-docker-compose up
+sudo docker-compose up --build
 ```
 You "should" now have a local instance of the Ampel running on your computer now.
-To check it out just look up ```localhost:8080``` on your browser :)
+To check it out just look up 
+```
+localhost:8080
+``` 
+on your browser :) You should now see the Ampel homescreen in your browser.
+
+
