@@ -1,4 +1,4 @@
-idea/
+.idea/
 **/*.pb.go
 ampel2
 data
