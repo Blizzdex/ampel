@@ -34,8 +34,8 @@ services:
       - SIP_POSTGRES_DB_NAME=postgres
       - SIP_POSTGRES_DB_USER=docker
       - SIP_POSTGRES_DB_PW=docker
-
-      - SIP_AUTH_OIDC_CLIENT_ID=local-ampel
+      - CLIENT_ID=local-ampel
+      - ISSUER=http://172.18.0.1:8180/auth/realms/VSETH
 
     depends_on:
       - postgres

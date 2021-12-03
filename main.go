@@ -23,10 +23,11 @@ import (
 
 //set up the ampel server variables
 var (
-	portgrpc       = flag.Int("port", 7777, "Port for grpc ampel requests")
-	postgresURL    = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
-	oidc_client_id = flag.String("client-id", "", "sets the client id of our ampel")
-	l              *log.Logger
+	portgrpc     = flag.Int("port", 7777, "Port for grpc ampel requests")
+	postgresURL  = flag.String("postgres-url", "", "(required) example: myuser:mypass@172.17.0.2:5432/drinks_registry?sslmode=disable")
+	oidcClientId = flag.String("client-id", "", "sets the client id of our ampel")
+	issuerURL    = flag.String("issuer-url", "", "sets issuer URL")
+	l            *log.Logger
 )
 
 type server struct {
@@ -36,9 +37,10 @@ type server struct {
 }
 
 //function parses the args coming from cinit and checks for empty args.
+// TODO this thing does no checks at all! +
 func checkArgs() {
 	flag.Parse()
-	for k, v := range map[string]string{"postgres-url": *postgresURL, "client-id": *oidc_client_id} {
+	for k, v := range map[string]string{"postgres-url": *postgresURL, "client-id": *oidcClientId} {
 		if strings.HasPrefix("{{", v) {
 			l.Fatalf("missing required argument %v:\n", k)
 		}
@@ -151,16 +153,15 @@ func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*
 		return &empty.Empty{}, err
 	}
 	//check request authenticiy
-	//TODO save provider + verifier in server (move code to main)
-	provider, err := oidc.NewProvider(ctx, "http://172.18.0.1:8180/auth/realms/VSETH") //localhost statt dessen http://172.18.0.1:8180/auth/realms/VSETH
+	provider, err := oidc.NewProvider(ctx, *issuerURL)
 	if err != nil {
 		l.Warn("Failed to fetch public key to authenticate grpc UpdateColor.")
 		l.Warn(err.Error())
 		return &empty.Empty{}, err
 	}
 
-	//l.Warn(*oidc_client_id)
-	var verifier = provider.Verifier(&oidc.Config{ClientID: *oidc_client_id, SkipIssuerCheck: true, SkipClientIDCheck: true})
+	//l.Warn(*oidcClientId)
+	var verifier = provider.Verifier(&oidc.Config{ClientID: *oidcClientId, SkipIssuerCheck: true, SkipClientIDCheck: true})
 
 	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
@@ -173,7 +174,7 @@ func (s *server) UpdateColor(ctx context.Context, req *pb.UpdateColorRequest) (*
 	t.token = idToken
 	var role = "admin"
 
-	_, hasRole := Find(t.Roles(*oidc_client_id), role)
+	_, hasRole := Find(t.Roles(*oidcClientId), role)
 	if !hasRole {
 		l.Warn("Failed due to insufficient permissions of user.")
 		return &empty.Empty{}, nil

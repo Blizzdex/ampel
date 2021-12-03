@@ -22,3 +22,11 @@ In this section we shortly go over the content of the repo.
 * sip.yml: Config telling the VIS/SIP infrastructure how to run the ampel.
 
 # How to Run Locally
+Make sure you have Docker and Docker-compose installed 
+(You should be able to install those via apt, brew or your other favourite package manager)
+Open a terminal window in the project repository and execute:
+```
+docker-compose up
+```
+You "should" now have a local instance of the Ampel running on your computer now.
+To check it out just look up ```localhost:8080``` on your browser :)
