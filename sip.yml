@@ -1,5 +1,5 @@
 postgres:
-    - name: db
+  - name: db
 
 ingress:
   - name: default
@@ -21,7 +21,7 @@ auth:
     accessType: confidential
     clientProtocol: openid-connect
     validRedirectURIs:
-      - https://ampel.svis.ethz.ch/*
+      - https://ampel.vis.ethz.ch/*
     roles:
       - name: admin
         description: Admin role for ampel2
@@ -40,7 +40,7 @@ sidecar:
       clientSecret: $(SIP_AUTH_OIDC_CLIENT_SECRET)
       port: "8080"
       containerPort: "80"
-      redirectionUrl: https://ampel.svis.ethz.ch/
+      redirectionUrl: https://ampel.vis.ethz.ch/
       secureCookie: "true"
       resources: |
         - uri: /set
