@@ -22,6 +22,10 @@ auth:
     clientProtocol: openid-connect
     validRedirectURIs:
       - https://ampel.vis.ethz.ch/*
+    scopes:
+      defaultClientScopes:
+        - profile
+        - roles
     roles:
       - name: admin
         description: Admin role for ampel2
