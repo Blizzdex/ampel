@@ -1,14 +1,5 @@
 ARG goversion=1.15
 
-FROM golang:${goversion} as proto
-ARG PROTO_VERSION=3.7.1
-RUN apt-get update && \
-    apt-get install unzip
-RUN go get -u google.golang.org/grpc
-ENV PATH=${PATH}:${GOPATH}/bin
-
-
-
 # Stage 1 used to compile the go code
 FROM golang:${goversion} as server
 WORKDIR ampel2
