@@ -18,7 +18,7 @@ In this section we shortly go over the content of the repo.
 * http.go: Contains the handlers for http requests to the ampel.
 * jwt.go: Contains code to extract claims from oidc-jwt-tokens.
 * main.go: Contains server setup + grpc handlers of the ampel.
-* renovate.json: ???
+* renovate.json: config for some git bot (this has no practical use at all...)
 * sip.yml: Config telling the VIS/SIP infrastructure how to run the ampel.
 
 # How to Run Locally
@@ -80,7 +80,7 @@ if color < 1 || color > 3 {
 }
 return color, err
 ```
-The only thing it does is sending a SQL query to our postgres DB, that stores the ampel's color (yep that's right, it stores one color and nothing else...)  
+The only thing it does is it sends a SQL query to our postgres DB, that stores the ampel's color (yep that's right, it stores one color and nothing else...)  
 But how did we even set up a connection to any Db anywhere?
 
 ### 2.1+ (Set up Db connection)
@@ -133,9 +133,7 @@ args:
     - "-issuer-url"
     - "{{ ISSUER }}"
 ```
-The final block of the cinit file specifies the ENV variables that should be accessible by the program 
-
-(if no value is specified, ??? it looks for those globally ???)
+The final block of the cinit file specifies the ENV variables that should be accessible to the ampel process. If no value is specified, it looks for the ENV variables in the parent process (process calling cinit, see next section for more info) and just uses those.
 
 And it specifies capabilities for the program (CAP_NET_BIND_SERVICE allows the program to listen on port 80)
 
