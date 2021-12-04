@@ -30,7 +30,7 @@ var colorName = map[int]string{
 
 //Handler, just giving back the current colour of the ampel
 func (s server) getColor(w http.ResponseWriter, r *http.Request) {
-	//read out the colour from the db
+	//read out the color from the db
 	var res, err = s.DbGetColor()
 	//check if color is valid
 	if res == 0 {

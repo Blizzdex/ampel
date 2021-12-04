@@ -44,11 +44,11 @@ localhost:8080/set
 PS: There really is no no more functionaltiy to it
 
 # A Tour of the project
-This section aims at guiding you through the project showing you the most important parts, in order to help you to get an overview.
+This section aims at guiding you through the project showing you the most important parts in order to help you to get an overview.
 ## Outline
-This section aims at leading you through what happens in the ampel when you want to display the ampel color. It starts by looking at the Go code that gets executed and then zooms out to infrastructure running around it.
+This section aims at leading you through what happens in Ampel when you want to display the ampel color. It starts by looking at the Go code that gets executed and then zooms out to the infrastructure running around it.
 
-## Step 1
+## Step 1 (Start listening)
 If you open up main.go you'll find this code in its main function (where execution starts):
 ```go
 //handle http requests
@@ -62,14 +62,14 @@ We'll go take a look at serv.getColor (setColor is implemented in a similar way)
 
 ## Step 2 (Get & Display the ampel color)
 In getColor (located in http.go) we want to request the current color of the ampel and display it.  
-This happens in two steps, first we request the ampel color, then we display it.
+This happens in two steps, first we request the ampel color then we display it.
 
 ### 2.1 (Get the ampel color)
-We see that getting the color happens in line 
+We see that getting the color happens in line 34
 ```go
 var res, err = s.DbGetColor()
 ```
-s.DbGetColor does a nonstatic call to DbGetColor on our server object. (in main.go) 
+s.DbGetColor makes a non-static call to DbGetColor on our server object. (in main.go) 
 ```go
 sqlStatement := `SELECT color FROM color`
 var color int
@@ -80,7 +80,7 @@ if color < 1 || color > 3 {
 }
 return color, err
 ```
-The only thing it does is sending an SQL query to our postgres DB, that stores the ampels color (yep thats right it stores one color and nothing else...)  
+The only thing it does is sending a SQL query to our postgres DB, that stores the ampel's color (yep that's right, it stores one color and nothing else...)  
 But how did we even set up a connection to any Db anywhere?
 
 ### 2.1+ (Set up Db connection)
@@ -93,7 +93,7 @@ How we got our postgresURL does not really matter for now :)
 ### 2.2 (Display ampel color)
 Now that we have our color, we need to display it on the ampel web interface. The code for this is the second part of the getColor function
 ```go
-//and print the colour to the website.
+//and print the color to the website.
 var p = col4Temp{Col: color}
 
 //create the template if that has not been done yet.
@@ -108,22 +108,22 @@ if s.t == nil {
 s.t.Execute(w, p)
 return
 ```
-This code creates a template out of our colTemplate.html file (templates behave more nicely than when just serving the html file) and in the template, the .Col variable is not set yet. This variable is set to the ampel color in the second to last line of the above code and displayed online (that's what the Execute command does)  
-Now that we saw what is going on inside ampel when displaying its color we can look at what it is running on.
+This code creates a template from our colTemplate.html file (templates behave more nicely than when just serving the html file) and in the template the .Col variable is not set yet. This variable is set to the ampel color in the second to last line of the above code and displayed online (that's what the Execute command does)  
+Now that we saw what is going on inside Ampel when displaying its color, we can look at what it is running on.
 
 
 # Step 3.1 (Do you know Docker)
 The Golang code you see in this repository runs encapsulated in a Docker container. This is a somehow independent environment where we can run code in. The Dockerfile contains the blueprints explaining how to build this very container.  
-As can be seen in the comments this Docker file describes a two stage build. The first stage is used to compile the Golang code, then this compiled code is copied into the second container, which builds upon an image developed by VSETH.  
+As can be seen in the comments, this Docker file describes a two stage build. The first stage is used to compile the Golang code, then this compiled code is copied into the second container which builds upon an image developed by VSETH.  
 We'll dig a bit deeper into this VSETH image
 # Step 3.2 (cinit.yml)
 The VSETH container while being built looks in your repo for a cinit.yml file and if it finds one it uses it to configure the container.  
-What have we got first? This only specifies the name and path of the program binary.
+The first part specifies the name and path of the program binary.
 ```yaml
 name: ampel2
 path: /app/ampel2
 ```
-The second segment defines the Arguments we want to pass to the program binary (this is where the postgres-url comes from for instance)
+The second segment defines the arguments we want to pass to the program binary (this is where the postgres-url comes from for instance)
 ```yaml
 args:
     - "-postgres-url"
@@ -137,7 +137,7 @@ The final block of the cinit file specifies the ENV variables that should be acc
 
 (if no value is specified, ??? it looks for those globally ???)
 
-And it specifies capabilities for the program (this one allows the program to listen on port 80)
+And it specifies capabilities for the program (CAP_NET_BIND_SERVICE allows the program to listen on port 80)
 
 ```yaml
 env:
@@ -151,4 +151,4 @@ env:
 capabilities:
       - CAP_NET_BIND_SERVICE
 ```
-Now we have a Docker container running the Ampel, but we still need a Db to store the ampel color in, where does that come from?
+Now we have a Docker container running the Ampel, but we still need a Db to store the ampel color in, where do we find that?
