@@ -112,5 +112,43 @@ This code creates a template out of our colTemplate.html file (templates behave 
 Now that we saw what is going on inside ampel when displaying its color we can look at what it is running on.
 
 
-# Step 3 (Do you know Docker)
+# Step 3.1 (Do you know Docker)
 The Golang code you see in this repository runs encapsulated in a Docker container. This is a somehow independent environment where we can run code in. The Dockerfile contains the blueprints explaining how to build this very container.  
+As can be seen in the comments this Docker file describes a two stage build. The first stage is used to compile the Golang code, then this compiled code is copied into the second container, which builds upon an image developed by VSETH.  
+We'll dig a bit deeper into this VSETH image
+# Step 3.2 (cinit.yml)
+The VSETH container while being built looks in your repo for a cinit.yml file and if it finds one it uses it to configure the container.  
+What have we got first? This only specifies the name and path of the program binary.
+```yaml
+name: ampel2
+path: /app/ampel2
+```
+The second segment defines the Arguments we want to pass to the program binary (this is where the postgres-url comes from for instance)
+```yaml
+args:
+    - "-postgres-url"
+    - "{{SIP_POSTGRES_DB_USER}}:{{SIP_POSTGRES_DB_PW}}@{{SIP_POSTGRES_DB_SERVER}}:{{SIP_POSTGRES_DB_PORT}}/{{SIP_POSTGRES_DB_NAME}}?sslmode=disable"
+    - "-client-id"
+    - "{{ CLIENT_ID }}"
+    - "-issuer-url"
+    - "{{ ISSUER }}"
+```
+The final block of the cinit file specifies the ENV variables that should be accessible by the program 
+
+(if no value is specified, ??? it looks for those globally ???)
+
+And it specifies capabilities for the program (this one allows the program to listen on port 80)
+
+```yaml
+env:
+    - SIP_POSTGRES_DB_SERVER:
+    - SIP_POSTGRES_DB_PORT:
+    - SIP_POSTGRES_DB_NAME:
+    - SIP_POSTGRES_DB_USER:
+    - SIP_POSTGRES_DB_PW:
+    - CLIENT_ID:
+    - ISSUER:
+capabilities:
+      - CAP_NET_BIND_SERVICE
+```
+Now we have a Docker container running the Ampel, but we still need a Db to store the ampel color in, where does that come from?
