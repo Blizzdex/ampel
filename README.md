@@ -6,7 +6,7 @@ Techstack.
 In this section we shortly go over the content of the repo.
 * migrations: Folder containing DB configuration.
 * servis: Contains .proto files for GRPC.
-* src: Frontend HTML code.
+* src: Frontend HTML code. (Graphics in resources folder created by Raphael Koch)
 * test: Client to test GRPC requests.
 * .gitignore: The .gitginore files specifies the files that are ignored by git.
 * Dockerfile: Dockerfile, describes how to create the docker image.
