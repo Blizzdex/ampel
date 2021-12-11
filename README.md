@@ -18,7 +18,6 @@ In this section we shortly go over the content of the repo.
 * http.go: Contains the handlers for http requests to the ampel.
 * jwt.go: Contains code to extract claims from oidc-jwt-tokens.
 * main.go: Contains server setup + grpc handlers of the ampel.
-* renovate.json: config for some git bot (this has no practical use at all...)
 * sip.yml: Config telling the VIS/SIP infrastructure how to run the ampel.
 
 # How to Run Locally
