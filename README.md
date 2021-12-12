@@ -149,3 +149,6 @@ capabilities:
       - CAP_NET_BIND_SERVICE
 ```
 Now we have a Docker container running the Ampel, but we still need a Db to store the ampel color in, where do we find that?
+
+# Step 4: TODO 
+Add explanations about SIP and Dockercompose
